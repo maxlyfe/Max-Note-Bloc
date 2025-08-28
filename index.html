@@ -13,7 +13,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display.swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
@@ -48,44 +48,41 @@
         /* Estilos para a visualização em Grade */
         .notes-grid-view {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
         }
         .note-grid-item {
-            height: 150px;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            height: 120px;
             position: relative;
             overflow: hidden;
         }
-        .note-grid-item .note-content-preview {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-            color: white;
-            padding: 1rem;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-            font-size: 0.875rem;
-            line-height: 1.25rem;
-            -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-            mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+        .note-grid-item:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            height: auto;
+            min-height: 120px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        .note-grid-item:hover .note-content-preview {
-            opacity: 1;
+        .note-grid-item .note-content {
+            display: none;
         }
-        .note-grid-item .note-actions {
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .note-grid-item:hover .note-content {
+            display: block;
         }
-        .note-grid-item:hover .note-actions {
-            opacity: 1;
+        /* Estilos para a visualização em Lista */
+        .notes-list-view {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .note-list-item {
+            max-height: 50px;
+            overflow: hidden;
+        }
+        .note-list-item:hover {
+            max-height: 200px;
+            transform: scale(1.02);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
     </style>
     <script>
@@ -97,7 +94,7 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
 
-    <!-- Container de Autenticação -->
+    <!-- Container de Autenticação (código inalterado) -->
     <div id="auth-container" class="min-h-screen flex items-center justify-center p-4">
         <div class="max-w-md w-full text-center">
             <div class="h-20 w-20 mx-auto mb-4">
@@ -146,7 +143,7 @@
             </div>
         </header>
 
-        <!-- Formulário para Adicionar (Oculto por padrão) -->
+        <!-- Formulário para Adicionar (código inalterado) -->
         <div id="add-note-container" class="win-card rounded-xl p-6 shadow-lg bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 form-container-hidden">
              <h2 class="text-2xl font-semibold mb-4">Adicionar Novo Script</h2>
              <div class="space-y-4">
@@ -164,14 +161,17 @@
             <!-- Botões de Visualização -->
             <div class="flex items-center gap-2 p-1 bg-gray-200 dark:bg-gray-700 rounded-lg">
                 <button id="view-cards-btn" class="p-2 rounded-md" title="Visualização em Cards">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5z"></path></svg>
+                    <svg class="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 2h10v10H5V5z"></path></svg>
                 </button>
                 <button id="view-grid-btn" class="p-2 rounded-md" title="Visualização em Grade">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h4v4H4V5zm6 0h4v4h-4V5zM4 11h4v4H4v-4zm6 0h4v4h-4v-4z"></path></svg>
+                    <svg class="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h14a1 1 0 001-1V4a1 1 0 00-1-1H3zm1 2h4v4H4V5zm6 0h4v4h-4V5zM4 11h4v4H4v-4zm6 0h4v4h-4v-4z"></path></svg>
+                </button>
+                <button id="view-list-btn" class="p-2 rounded-md" title="Visualização em Lista">
+                    <svg class="w-5 h-5 pointer-events-none" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
                 </button>
             </div>
         </div>
-        <div id="scripts-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div id="scripts-list">
             <!-- As notas serão inseridas aqui -->
         </div>
     </div>
@@ -212,6 +212,7 @@
         // --- ELEMENTOS DO DOM ---
         const viewCardsBtn = document.getElementById('view-cards-btn');
         const viewGridBtn = document.getElementById('view-grid-btn');
+        const viewListBtn = document.getElementById('view-list-btn');
         const themeToggle = document.getElementById('theme-toggle');
         const sunIcon = document.getElementById('theme-icon-sun');
         const moonIcon = document.getElementById('theme-icon-moon');
@@ -241,26 +242,31 @@
         
         let sortableInstance = null;
         let notesCache = [];
-        let currentView = 'cards'; // 'cards' ou 'grid'
+        let currentView = 'cards'; // 'cards', 'grid', ou 'list'
 
         // --- LÓGICA DE VISUALIZAÇÃO E TEMA ---
         const applyView = (view) => {
             currentView = view;
             localStorage.setItem('notesView', view);
+            
+            [viewCardsBtn, viewGridBtn, viewListBtn].forEach(btn => btn.classList.remove('bg-white', 'dark:bg-gray-500'));
+            if (view === 'cards') viewCardsBtn.classList.add('bg-white', 'dark:bg-gray-500');
+            if (view === 'grid') viewGridBtn.classList.add('bg-white', 'dark:bg-gray-500');
+            if (view === 'list') viewListBtn.classList.add('bg-white', 'dark:bg-gray-500');
+
             if (view === 'grid') {
                 scriptsList.className = 'notes-grid-view';
-                viewGridBtn.classList.add('bg-white', 'dark:bg-gray-500');
-                viewCardsBtn.classList.remove('bg-white', 'dark:bg-gray-500');
+            } else if (view === 'list') {
+                scriptsList.className = 'notes-list-view';
             } else { // 'cards'
                 scriptsList.className = 'grid grid-cols-1 md:grid-cols-2 gap-6';
-                viewCardsBtn.classList.add('bg-white', 'dark:bg-gray-500');
-                viewGridBtn.classList.remove('bg-white', 'dark:bg-gray-500');
             }
             renderNotes(notesCache);
         };
 
         viewCardsBtn.addEventListener('click', () => applyView('cards'));
         viewGridBtn.addEventListener('click', () => applyView('grid'));
+        viewListBtn.addEventListener('click', () => applyView('list'));
         
         const applyTheme = (theme) => {
             if (theme === 'dark') {
@@ -317,30 +323,59 @@
             notes.forEach(note => {
                 const scriptCard = document.createElement('div');
                 scriptCard.dataset.id = note.id;
+                
+                let cardHTML = '';
 
-                if (currentView === 'grid') {
-                    scriptCard.className = 'win-card note-grid-item rounded-xl shadow-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 cursor-grab';
-                    scriptCard.innerHTML = `
-                        <h3 class="font-bold text-gray-700 dark:text-gray-100 truncate">${note.title}</h3>
-                        <div class="note-content-preview">${note.content}</div>
-                        <div class="note-actions flex justify-center gap-2 z-10">
-                            <button class="copy-btn icon-btn bg-blue-600/80 hover:bg-blue-700 text-white p-2 rounded-lg" data-content="${note.content}" title="Copiar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
-                            <button class="edit-btn icon-btn bg-gray-300/80 hover:bg-gray-400 dark:bg-gray-600/80 dark:hover:bg-gray-500 p-2 rounded-lg" data-id="${note.id}" data-title="${note.title}" data-content="${note.content}" title="Editar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 7.196z"></path></svg></button>
-                            <button class="delete-btn icon-btn bg-red-600/80 hover:bg-red-700 text-white p-2 rounded-lg" data-id="${note.id}" title="Deletar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                    `;
-                } else { // 'cards'
-                    scriptCard.className = 'win-card rounded-xl p-5 flex flex-col shadow-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 cursor-grab';
-                    scriptCard.innerHTML = `
-                        <h3 class="text-xl font-bold mb-2 text-gray-700 dark:text-gray-100">${note.title}</h3>
-                        <p class="text-gray-600 dark:text-gray-300 flex-grow mb-4 whitespace-pre-wrap">${note.content}</p>
-                        <div class="flex justify-end space-x-2 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                            <button class="copy-btn icon-btn bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg" data-content="${note.content}" title="Copiar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
-                            <button class="edit-btn icon-btn bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 p-2 rounded-lg" data-id="${note.id}" data-title="${note.title}" data-content="${note.content}" title="Editar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 7.196z"></path></svg></button>
-                            <button class="delete-btn icon-btn bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg" data-id="${note.id}" title="Deletar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                        </div>
-                    `;
+                switch (currentView) {
+                    case 'grid':
+                        scriptCard.className = 'win-card note-grid-item rounded-xl shadow-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 cursor-grab p-4 flex flex-col justify-between';
+                        cardHTML = `
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-700 dark:text-gray-100 truncate">${note.title}</h3>
+                                <p class="note-content text-gray-600 dark:text-gray-300 text-sm mt-2 whitespace-pre-wrap">${note.content}</p>
+                            </div>
+                            <div class="flex justify-end space-x-2 mt-2">
+                                <!-- Botões aqui (podem ser menores) -->
+                            </div>
+                        `;
+                        break;
+                    case 'list':
+                        scriptCard.className = 'win-card note-list-item rounded-lg shadow-sm bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 cursor-grab p-4';
+                        cardHTML = `
+                            <div class="flex justify-between items-center">
+                                <h3 class="font-bold text-gray-700 dark:text-gray-100 truncate">${note.title}</h3>
+                                <div class="flex items-center space-x-2">
+                                    <!-- Botões aqui -->
+                                </div>
+                            </div>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm mt-2 whitespace-pre-wrap pt-2 border-t border-gray-200 dark:border-gray-700">${note.content}</p>
+                        `;
+                        break;
+                    default: // 'cards'
+                        scriptCard.className = 'win-card rounded-xl p-5 flex flex-col shadow-md bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 cursor-grab';
+                        cardHTML = `
+                            <h3 class="text-xl font-bold mb-2 text-gray-700 dark:text-gray-100">${note.title}</h3>
+                            <p class="text-gray-600 dark:text-gray-300 flex-grow mb-4 whitespace-pre-wrap">${note.content}</p>
+                            <div class="flex justify-end space-x-2 mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <button class="copy-btn icon-btn bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg" data-content="${note.content}" title="Copiar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
+                                <button class="edit-btn icon-btn bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 p-2 rounded-lg" data-id="${note.id}" data-title="${note.title}" data-content="${note.content}" title="Editar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 7.196z"></path></svg></button>
+                                <button class="delete-btn icon-btn bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg" data-id="${note.id}" title="Deletar"><svg class="w-5 h-5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        `;
+                        break;
                 }
+                
+                if (currentView !== 'cards') {
+                    const actionButtonsHTML = `
+                        <button class="copy-btn icon-btn bg-blue-600/80 hover:bg-blue-700 text-white p-2 rounded-lg" data-content="${note.content}" title="Copiar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg></button>
+                        <button class="edit-btn icon-btn bg-gray-300/80 hover:bg-gray-400 dark:bg-gray-600/80 dark:hover:bg-gray-500 p-2 rounded-lg" data-id="${note.id}" data-title="${note.title}" data-content="${note.content}" title="Editar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L13.196 7.196z"></path></svg></button>
+                        <button class="delete-btn icon-btn bg-red-600/80 hover:bg-red-700 text-white p-2 rounded-lg" data-id="${note.id}" title="Deletar"><svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    `;
+                     cardHTML = cardHTML.replace('<!-- Botões aqui -->', actionButtonsHTML);
+                     cardHTML = cardHTML.replace('<!-- Botões aqui (podem ser menores) -->', actionButtonsHTML);
+                }
+
+                scriptCard.innerHTML = cardHTML;
                 scriptsList.appendChild(scriptCard);
             });
             
