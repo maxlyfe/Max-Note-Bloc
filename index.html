@@ -30,6 +30,21 @@
         .sortable-chosen {
             cursor: grabbing;
         }
+        /* Animação para o formulário aparecer */
+        .form-container-hidden {
+            max-height: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            opacity: 0;
+            transition: all 0.5s ease-in-out;
+        }
+        .form-container-visible {
+            max-height: 500px; /* Altura suficiente para o conteúdo */
+            opacity: 1;
+            margin-bottom: 2rem; /* mb-8 */
+        }
     </style>
     <script>
         // Configuração do Tailwind para modo dark
@@ -88,14 +103,29 @@
                 <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg">Sair</button>
             </div>
         </header>
-        <div class="win-card rounded-xl p-6 mb-8 shadow-lg bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50">
+
+        <!-- Formulário para Adicionar (Oculto por padrão) -->
+        <div id="add-note-container" class="win-card rounded-xl p-6 shadow-lg bg-white/80 dark:bg-gray-800/80 border border-white/20 dark:border-gray-700/50 form-container-hidden">
              <h2 class="text-2xl font-semibold mb-4">Adicionar Novo Script</h2>
              <div class="space-y-4">
                 <input type="text" id="script-title" placeholder="Título do Script" class="w-full p-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg">
                 <textarea id="script-content" placeholder="Conteúdo do script..." rows="4" class="w-full p-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg"></textarea>
-                <button id="add-script-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar Script</button>
+                <div class="flex gap-4">
+                    <button id="cancel-add-btn" class="w-full bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-bold py-3 px-4 rounded-lg">Cancelar</button>
+                    <button id="add-script-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar Script</button>
+                </div>
             </div>
         </div>
+
+        <!-- Botão para mostrar o formulário -->
+        <div class="flex justify-center mb-6">
+            <button id="show-add-form-btn" class="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-3 shadow-lg transition transform hover:scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+        
         <div>
             <h2 class="text-2xl font-semibold mb-4 text-center text-gray-600 dark:text-gray-300">Meus Scripts</h2>
             <div id="scripts-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -122,7 +152,6 @@
 
     <script>
         // --- CONFIGURAÇÃO DO SUPABASE ---
-        // As chaves serão substituídas pelo Netlify durante o deploy.
         const SUPABASE_URL = '__SUPABASE_URL__';
         const SUPABASE_ANON_KEY = '__SUPABASE_ANON_KEY__';
         
@@ -153,6 +182,9 @@
         const editScriptContent = document.getElementById('edit-script-content');
         const saveEditBtn = document.getElementById('save-edit-btn');
         const cancelEditBtn = document.getElementById('cancel-edit-btn');
+        const addNoteContainer = document.getElementById('add-note-container');
+        const showAddFormBtn = document.getElementById('show-add-form-btn');
+        const cancelAddBtn = document.getElementById('cancel-add-btn');
         
         let sortableInstance = null;
         let notesCache = [];
@@ -233,15 +265,40 @@
                 chosenClass: 'sortable-chosen',
                 onEnd: async (evt) => {
                     const noteElements = Array.from(scriptsList.children);
-                    const updates = noteElements.map((el, index) => ({ id: el.dataset.id, position: index }));
-                    const { error } = await _supabase.from('notes').upsert(updates);
-                    if (error) { console.error("Erro ao salvar nova ordem:", error); showToast("Não foi possível salvar a nova ordem.", true); } 
-                    else { showToast("Ordem salva com sucesso!"); }
+                    const updatePromises = noteElements.map((el, index) => 
+                        _supabase
+                            .from('notes')
+                            .update({ position: index })
+                            .eq('id', el.dataset.id)
+                    );
+                    try {
+                        await Promise.all(updatePromises);
+                        showToast("Ordem salva com sucesso!");
+                    } catch (error) {
+                        console.error("Erro ao salvar nova ordem:", error);
+                        showToast("Não foi possível salvar a nova ordem.", true);
+                        fetchNotes();
+                    }
                 }
             });
         };
 
         // --- EVENT LISTENERS ---
+        const toggleAddForm = (show) => {
+            if (show) {
+                addNoteContainer.classList.remove('form-container-hidden');
+                addNoteContainer.classList.add('form-container-visible');
+                showAddFormBtn.classList.add('hidden');
+            } else {
+                addNoteContainer.classList.add('form-container-hidden');
+                addNoteContainer.classList.remove('form-container-visible');
+                showAddFormBtn.classList.remove('hidden');
+            }
+        };
+
+        showAddFormBtn.addEventListener('click', () => toggleAddForm(true));
+        cancelAddBtn.addEventListener('click', () => toggleAddForm(false));
+
         addScriptBtn.addEventListener('click', async () => {
             const title = document.getElementById('script-title').value;
             const content = document.getElementById('script-content').value;
@@ -253,6 +310,7 @@
                 showToast('Nota salva com sucesso!');
                 document.getElementById('script-title').value = '';
                 document.getElementById('script-content').value = '';
+                toggleAddForm(false); // Esconde o formulário após salvar
                 fetchNotes();
             }
         });
