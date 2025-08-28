@@ -336,6 +336,10 @@
                 showAddFormBtn.style.display = 'none';
             }
         });
+        viewCardsBtn.addEventListener('click', () => applyView('cards'));
+        viewGridBtn.addEventListener('click', () => applyView('grid'));
+        viewListBtn.addEventListener('click', () => applyView('list'));
+
         const savedView = localStorage.getItem('notesView') || 'cards';
         applyView(savedView);
         const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
